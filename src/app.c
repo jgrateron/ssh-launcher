@@ -328,6 +328,9 @@ static void handle_input(AppState* state, int ch) {
         case KEY_DOWN:
             navigate_down(state);
             return;
+        case KEY_RESIZE:
+            ui_resize(&state->panels);
+            return;
         case '\t':  /* Tab: toggle panel while searching */
             toggle_panel(state);
             return;
@@ -379,7 +382,22 @@ static void handle_input(AppState* state, int ch) {
         ui_theme_save(state->theme_index);
         break;
     case KEY_RESIZE:
-        /* ncurses handles basic resize; we just need to clamp */
+        ui_resize(&state->panels);
+        /* Re-clamp scroll offsets after resize */
+        {
+            int h, w;
+            getmaxyx(state->panels.recents_panel, h, w);
+            (void)w;
+            adjust_scroll(state->recents_selected, &state->recents_scroll,
+                          h - 2, state->history_count);
+        }
+        {
+            int h, w;
+            getmaxyx(state->panels.all_panel, h, w);
+            (void)w;
+            int count = state->filtered_hosts ? state->filtered_hosts->count : 0;
+            adjust_scroll(state->all_selected, &state->all_scroll, h - 2, count);
+        }
         break;
     default:
         break;

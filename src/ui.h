@@ -46,6 +46,9 @@ void ui_shutdown(UIPanels* panels);
 /* Full redraw of all panels based on current app state. */
 void ui_draw(const UIPanels* panels, const struct AppState* state);
 
+/* Resize all windows to match current LINES/COLS after terminal resize. */
+void ui_resize(UIPanels* panels);
+
 /* Get keyboard input. Returns the key code (or character). */
 int ui_get_input(void);
 

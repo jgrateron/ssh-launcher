@@ -204,6 +204,29 @@ void ui_shutdown(UIPanels* panels) {
     endwin();
 }
 
+void ui_resize(UIPanels* panels) {
+    if (!panels) return;
+
+    /* Resize and reposition each window to match new LINES/COLS.
+     * Layout: header (1) + panels (LINES-4) + status (3) = LINES */
+    wresize(panels->header_win,    1,           COLS);
+    mvwin(panels->header_win,      0,           0);
+
+    wresize(panels->recents_panel, LINES - 4,   COLS / 2);
+    mvwin(panels->recents_panel,   1,           0);
+
+    wresize(panels->all_panel,     LINES - 4,   COLS - COLS / 2);
+    mvwin(panels->all_panel,       1,           COLS / 2);
+
+    wresize(panels->status_win,    3,           COLS);
+    mvwin(panels->status_win,      LINES - 3,   0);
+
+    /* Clear everything so the next ui_draw repaints correctly */
+    werase(stdscr);
+    wnoutrefresh(stdscr);
+    doupdate();
+}
+
 /* Draw a box with title at the top border */
 static void draw_titled_box(WINDOW* win, const char* title, int color_pair) {
     int height, width;

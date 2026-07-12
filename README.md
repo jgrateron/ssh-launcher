@@ -106,3 +106,9 @@ make clean && make    # C11, -Wall -Wextra -pedantic, zero warnings
 Uses **character-skip matching** (fzf-style): all characters in the pattern must appear in order within the host name, but not necessarily consecutively.
 
 Example: `prd` matches `prod-web-01` (p, r, d appear in order).
+
+## Acknowledgments
+
+This project was developed with assistance from [Claude Code](https://claude.com/claude-code), Anthropic's AI-powered software development tool.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

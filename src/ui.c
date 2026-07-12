@@ -22,7 +22,7 @@ static const Theme themes[THEME_COUNT] = {
     /* 0: Default — dark background, cyan header, green active */
     { COLOR_BLACK,  COLOR_CYAN,     /* header: black on cyan */
       COLOR_GREEN,  COLOR_BLACK,    /* active panel: green on black */
-      COLOR_BLACK,  COLOR_BLACK,    /* inactive panel: black on black (title hidden) */
+      COLOR_BLUE,   COLOR_BLACK,    /* inactive panel: dark blue on black (border visible, subdued) */
       COLOR_WHITE,  COLOR_BLACK,    /* text: white on black */
       COLOR_BLACK,  COLOR_GREEN,    /* selected: black on green */
       COLOR_WHITE,  COLOR_BLUE,     /* status: white on blue */
@@ -58,7 +58,7 @@ static const Theme themes[THEME_COUNT] = {
     /* 4: Gruvbox — warm retro tones */
     { COLOR_BLACK,  COLOR_YELLOW,   /* header: black on yellow */
       COLOR_YELLOW, COLOR_BLACK,    /* active: yellow on black */
-      COLOR_BLACK,  COLOR_BLACK,    /* inactive: hidden on black */
+      COLOR_WHITE,  COLOR_BLACK,    /* inactive: white on black (border visible) */
       COLOR_WHITE,  COLOR_BLACK,    /* text */
       COLOR_BLACK,  COLOR_YELLOW,   /* selected: black on yellow */
       COLOR_YELLOW, COLOR_BLACK,    /* status */
@@ -323,8 +323,7 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
 
     /* ---- Recents Panel ---- */
     int recents_color = recents_active ? COLOR_PANEL_ACTIVE : COLOR_PANEL_INACTIVE;
-    draw_titled_box(panels->recents_panel, recents_active ? " RECENTES " : NULL,
-                    recents_color);
+    draw_titled_box(panels->recents_panel, " RECENTES ", recents_color);
 
     if (state->history_count == 0) {
         int h, w;
@@ -347,7 +346,7 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     } else {
         snprintf(all_title, sizeof(all_title), " TODOS LOS SERVIDORES ");
     }
-    draw_titled_box(panels->all_panel, recents_active ? NULL : all_title, all_color);
+    draw_titled_box(panels->all_panel, all_title, all_color);
 
     int host_count = state->filtered_hosts ? state->filtered_hosts->count : 0;
     if (host_count == 0) {

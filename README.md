@@ -80,7 +80,7 @@ The selected theme persists across sessions in `~/.config/ssh-launcher/theme`.
 | File | Location |
 |---|---|
 | SSH config | `~/.ssh/config` |
-| History (last 5) | `~/.config/ssh-launcher/history` |
+| History (last 10) | `~/.config/ssh-launcher/history` |
 | Saved theme | `~/.config/ssh-launcher/theme` |
 
 ## Project Structure
@@ -90,7 +90,7 @@ src/
   main.c          # Entry point
   app.h / app.c   # State, event loop, orchestration
   parser.h / .c   # SSH config parser (~/.ssh/config)
-  history.h / .c  # History persistence (last 5 connections)
+  history.h / .c  # History persistence (last 10 connections)
   search.h / .c   # Fuzzy search (character-skip matching)
   ui.h / ui.c     # ncurses UI (windows, themes, input)
 ```

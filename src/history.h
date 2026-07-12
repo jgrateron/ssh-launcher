@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#define HISTORY_MAX  5
+#define HISTORY_MAX  10
 #define HOST_NAME_MAX 256
 
 /* Load history from the given file path into the pre-allocated buffer.

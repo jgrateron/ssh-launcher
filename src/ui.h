@@ -18,8 +18,7 @@ typedef struct {
     WINDOW* header_win;       /* top row: title bar */
     WINDOW* recents_panel;    /* left panel: recent hosts */
     WINDOW* all_panel;        /* right panel: all hosts */
-    WINDOW* status_win;       /* bottom 2 rows: search + shortcuts */
-    WINDOW* root_win;         /* full-screen root window */
+    WINDOW* status_win;       /* bottom 3 rows: search + shortcuts */
 } UIPanels;
 
 /* Forward declaration */

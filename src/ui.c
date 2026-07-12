@@ -16,6 +16,7 @@ int ui_init(UIPanels* panels) {
     cbreak();
     noecho();
     curs_set(0);
+    keypad(stdscr, TRUE);  /* enable function keys on stdscr for input */
 
     /* Initialize color pairs */
     init_pair(COLOR_DEFAULT,   COLOR_WHITE,  COLOR_BLACK);
@@ -25,20 +26,12 @@ int ui_init(UIPanels* panels) {
     init_pair(COLOR_STATUS,    COLOR_WHITE,  COLOR_BLUE);
     init_pair(COLOR_SEARCH_HIGHLIGHT, COLOR_YELLOW, COLOR_BLACK);
 
-    /* Create full-screen root window */
-    panels->root_win = newwin(LINES, COLS, 0, 0);
-    if (!panels->root_win) {
-        endwin();
-        return -1;
-    }
-    keypad(panels->root_win, TRUE);
-
-    /* Create sub-windows.
-     * Layout: header (1 row) + panels (LINES-4) + status (3 rows) = LINES */
-    panels->header_win    = derwin(panels->root_win, 1,           COLS,            0, 0);
-    panels->recents_panel = derwin(panels->root_win, LINES - 4,   COLS / 2,        1, 0);
-    panels->all_panel     = derwin(panels->root_win, LINES - 4,   COLS - COLS / 2, 1, COLS / 2);
-    panels->status_win    = derwin(panels->root_win, 3,           COLS,            LINES - 3, 0);
+    /* Create independent windows (non-overlapping screen regions).
+     * Layout: header (1) + panels (LINES-4) + status (3) = LINES */
+    panels->header_win    = newwin(1,           COLS,            0, 0);
+    panels->recents_panel = newwin(LINES - 4,   COLS / 2,        1, 0);
+    panels->all_panel     = newwin(LINES - 4,   COLS - COLS / 2, 1, COLS / 2);
+    panels->status_win    = newwin(3,           COLS,            LINES - 3, 0);
 
     if (!panels->header_win || !panels->recents_panel ||
         !panels->all_panel || !panels->status_win) {
@@ -46,9 +39,15 @@ int ui_init(UIPanels* panels) {
         return -1;
     }
 
+    keypad(panels->header_win, TRUE);
     keypad(panels->recents_panel, TRUE);
     keypad(panels->all_panel, TRUE);
     keypad(panels->status_win, TRUE);
+
+    /* Initial screen clear */
+    werase(stdscr);
+    wnoutrefresh(stdscr);
+    doupdate();
 
     return 0;
 }
@@ -64,17 +63,15 @@ void ui_resume(void) {
 void ui_shutdown(UIPanels* panels) {
     if (!panels) return;
 
-    if (panels->header_win) delwin(panels->header_win);
+    if (panels->header_win)    delwin(panels->header_win);
     if (panels->recents_panel) delwin(panels->recents_panel);
-    if (panels->all_panel) delwin(panels->all_panel);
-    if (panels->status_win) delwin(panels->status_win);
-    if (panels->root_win) delwin(panels->root_win);
+    if (panels->all_panel)     delwin(panels->all_panel);
+    if (panels->status_win)    delwin(panels->status_win);
 
-    panels->header_win = NULL;
+    panels->header_win    = NULL;
     panels->recents_panel = NULL;
-    panels->all_panel = NULL;
-    panels->status_win = NULL;
-    panels->root_win = NULL;
+    panels->all_panel     = NULL;
+    panels->status_win    = NULL;
 
     endwin();
 }
@@ -90,27 +87,26 @@ static void draw_titled_box(WINDOW* win, const char* title, int color_pair) {
     wborder(win, 0, 0, 0, 0, 0, 0, 0, 0);
 
     if (title && width > 2) {
-
         int title_len = (int)strlen(title);
-        int x = 1;  /* left-align in border area */
+        int x = 1;
         if (title_len > width - 2) title_len = width - 2;
         mvwprintw(win, 0, x, "%.*s", title_len, title);
     }
     wattroff(win, COLOR_PAIR(color_pair));
 }
 
-/* Draw host entries in a panel */
+/* Draw host entries from history array */
 static void draw_host_list(WINDOW* win, char entries[][HOST_NAME_MAX], int count,
                            int selected, int scroll_offset, int color_pair) {
     int height, width;
     getmaxyx(win, height, width);
-    int visible_rows = height - 2;  /* minus borders */
+    int visible_rows = height - 2;
     if (visible_rows < 0) return;
 
     for (int i = 0; i < visible_rows && (i + scroll_offset) < count; i++) {
         int idx = i + scroll_offset;
-        int y = i + 1;  /* row 0 is top border */
-        int x = 1;      /* column 0 is left border */
+        int y = i + 1;
+        int x = 1;
 
         if (idx == selected) {
             wattron(win, COLOR_PAIR(COLOR_SELECTED));
@@ -118,9 +114,8 @@ static void draw_host_list(WINDOW* win, char entries[][HOST_NAME_MAX], int count
             wattron(win, COLOR_PAIR(color_pair));
         }
 
-        /* Print the entry with selection marker */
         const char* marker = (idx == selected) ? "> " : "  ";
-        int max_len = width - 3;  /* space for marker and right border */
+        int max_len = width - 3;
         mvwprintw(win, y, x, "%s%-*.*s", marker, max_len, max_len, entries[idx]);
 
         wattroff(win, COLOR_PAIR(COLOR_SELECTED));
@@ -161,22 +156,16 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
 
     /* Check terminal size */
     if (LINES < 10 || COLS < 40) {
-        werase(panels->root_win);
+        clear();
         const char* msg = "Terminal too small. Need at least 40x10.";
-        mvwprintw(panels->root_win, LINES / 2, (COLS - (int)strlen(msg)) / 2, "%s", msg);
-        mvwprintw(panels->root_win, LINES / 2 + 1, (COLS - 22) / 2,
-                  "Press any key to exit.");
-        wnoutrefresh(panels->root_win);
-        doupdate();
+        mvprintw(LINES / 2, (COLS - (int)strlen(msg)) / 2, "%s", msg);
+        mvprintw(LINES / 2 + 1, (COLS - 22) / 2, "Press any key to exit.");
+        refresh();
         return;
     }
 
     /* ---- Header ---- */
     draw_titled_box(panels->header_win, "SSH LAUNCHER v1.0", COLOR_HEADER);
-    /* Draw [?] help hint on the right */
-    int header_width;
-    getmaxyx(panels->header_win, header_width, header_width);  /* dummy for height */
-    (void)header_width;  /* unused */
     mvwprintw(panels->header_win, 0, COLS - 4, "[?]");
 
     /* ---- Recents Panel ---- */
@@ -239,29 +228,26 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     /* ---- Status Bar ---- */
     draw_titled_box(panels->status_win, NULL, COLOR_STATUS);
 
-    /* Row 0 of status: search input */
+    /* Row 1 of status: search input */
     wattron(panels->status_win, COLOR_PAIR(COLOR_STATUS));
     mvwprintw(panels->status_win, 1, 2, "Busqueda: %s",
               state->search_buffer);
     if (state->is_searching) {
-        /* Show cursor position in the search buffer */
         wattron(panels->status_win, A_BLINK);
-        /* Draw cursor indicator */
         int cursor_x = 12 + state->search_cursor;
         mvwprintw(panels->status_win, 1, cursor_x, " ");
         wattroff(panels->status_win, A_BLINK);
     }
     wattroff(panels->status_win, COLOR_PAIR(COLOR_STATUS));
 
-    /* Row 1 of status: shortcuts (bottom row) */
+    /* Row 2 of status: shortcuts */
     wattron(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
     mvwprintw(panels->status_win, 2, 2,
               "[Enter] Conectar  [/] Buscar  [Tab] Panel  [Esc] %s",
               state->is_searching ? "Cancelar" : "Salir");
     wattroff(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
 
-    /* Refresh all windows */
-    wnoutrefresh(panels->root_win);
+    /* Refresh all windows — independent newwin's, order doesn't matter */
     wnoutrefresh(panels->header_win);
     wnoutrefresh(panels->recents_panel);
     wnoutrefresh(panels->all_panel);

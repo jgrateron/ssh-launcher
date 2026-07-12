@@ -266,7 +266,7 @@ static void draw_host_list(WINDOW* win, char entries[][HOST_NAME_MAX], int count
         }
 
         const char* marker = (idx == selected) ? "> " : "  ";
-        int max_len = width - 3;
+        int max_len = width - 4;
         mvwprintw(win, y, x, "%s%-*.*s", marker, max_len, max_len, entries[idx]);
 
         wattroff(win, COLOR_PAIR(COLOR_SELECTED));
@@ -294,7 +294,7 @@ static void draw_hostlist(WINDOW* win, const HostList* list,
         }
 
         const char* marker = (idx == selected) ? "> " : "  ";
-        int max_len = width - 3;
+        int max_len = width - 4;
         mvwprintw(win, y, x, "%s%-*.*s", marker, max_len, max_len, list->names[idx]);
 
         wattroff(win, COLOR_PAIR(COLOR_SELECTED));

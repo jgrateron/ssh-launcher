@@ -62,13 +62,20 @@ AppState* app_init(void) {
     state->search_buffer[0] = '\0';
     state->search_cursor = 0;
     state->running = true;
-    state->theme_index = 0;
 
-    /* Initialize ncurses */
+    /* Load saved theme before initializing ncurses */
+    state->theme_index = ui_theme_load();
+
+    /* Initialize ncurses (applies default theme 0 internally) */
     if (ui_init(&state->panels) != 0) {
         host_list_free(state->all_hosts);
         free(state);
         return NULL;
+    }
+
+    /* Override with saved theme if different from default */
+    if (state->theme_index != 0) {
+        ui_apply_theme(state->theme_index);
     }
 
     /* Set up signal handling */
@@ -328,6 +335,7 @@ static void handle_input(AppState* state, int ch) {
         case KEY_F(2):  /* Cycle color theme */
             state->theme_index = ui_next_theme(state->theme_index);
             ui_apply_theme(state->theme_index);
+            ui_theme_save(state->theme_index);
             return;
         default:
             if (ch >= 32 && ch <= 126) {
@@ -369,6 +377,7 @@ static void handle_input(AppState* state, int ch) {
     case KEY_F(2):  /* Cycle color theme */
         state->theme_index = ui_next_theme(state->theme_index);
         ui_apply_theme(state->theme_index);
+        ui_theme_save(state->theme_index);
         break;
     case KEY_RESIZE:
         /* ncurses handles basic resize; we just need to clamp */

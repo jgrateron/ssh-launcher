@@ -52,4 +52,12 @@ void ui_apply_theme(int theme_index);
 /* Return the next theme index (wraps around). */
 int ui_next_theme(int current);
 
+/* Save theme index to persistent config file (~/.config/ssh-launcher/theme).
+ * Returns 0 on success, -1 on failure. */
+int ui_theme_save(int theme_index);
+
+/* Load theme index from persistent config file.
+ * Returns the saved index, or 0 (default) if file doesn't exist. */
+int ui_theme_load(void);
+
 #endif /* SSH_LAUNCHER_UI_H */

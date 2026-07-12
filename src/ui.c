@@ -1,7 +1,11 @@
 #include "ui.h"
 #include "app.h"
+#include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 /* ---- Theme definitions ---- */
 typedef struct {
@@ -85,6 +89,59 @@ void ui_apply_theme(int theme_index) {
 
 int ui_next_theme(int current) {
     return (current + 1) % THEME_COUNT;
+}
+
+/* ---- Theme persistence (~/.config/ssh-launcher/theme) ---- */
+
+static void theme_config_path(char* buf, size_t bufsize) {
+    const char* home = getenv("HOME");
+    if (!home) home = ".";
+    snprintf(buf, bufsize, "%s/.config/ssh-launcher/theme", home);
+}
+
+int ui_theme_save(int theme_index) {
+    char path[512];
+    theme_config_path(path, sizeof(path));
+
+    /* Create parent directories if needed */
+    char dir[512];
+    snprintf(dir, sizeof(dir), "%s/.config/ssh-launcher",
+             getenv("HOME") ? getenv("HOME") : ".");
+    mkdir(dir, 0755);
+
+    /* Also ensure .config exists (for clean environments) */
+    char config_dir[512];
+    snprintf(config_dir, sizeof(config_dir), "%s/.config",
+             getenv("HOME") ? getenv("HOME") : ".");
+    mkdir(config_dir, 0755);
+
+    FILE* f = fopen(path, "w");
+    if (!f) return -1;
+
+    fprintf(f, "%d\n", theme_index % THEME_COUNT);
+    fclose(f);
+    return 0;
+}
+
+int ui_theme_load(void) {
+    char path[512];
+    theme_config_path(path, sizeof(path));
+
+    FILE* f = fopen(path, "r");
+    if (!f) return 0;  /* No saved theme → use default */
+
+    int index = 0;
+    if (fscanf(f, "%d", &index) != 1) {
+        fclose(f);
+        return 0;
+    }
+
+    fclose(f);
+
+    /* Clamp to valid range */
+    if (index < 0) index = 0;
+    if (index >= THEME_COUNT) index = 0;
+    return index;
 }
 
 /* ---- Init / shutdown ---- */

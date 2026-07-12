@@ -60,7 +60,7 @@ cp sample_ssh_config ~/.ssh/config
 | `Enter` | Connect via SSH to selected host |
 | `/` | Search (incremental fuzzy filter) |
 | `F2` | Cycle color theme |
-| `Esc` | Cancel search / Exit |
+| `Esc` / `q` | Cancel search / Exit |
 
 ## Themes
 

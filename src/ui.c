@@ -386,7 +386,7 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     /* Row 2: shortcuts */
     wattron(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
     mvwprintw(panels->status_win, 2, 2,
-              "[Enter] Conectar  [/] Buscar  [Tab] Panel  [F2] Temas  [Esc] %s",
+              "[Enter] Conectar  [/] Buscar  [Tab] Panel  [F2] Temas  [Esc/q] %s",
               state->is_searching ? "Cancelar" : "Salir");
     wattroff(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
 

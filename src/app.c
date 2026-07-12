@@ -350,6 +350,7 @@ static void handle_input(AppState* state, int ch) {
     /* Normal mode input handling */
     switch (ch) {
     case 27:  /* Escape */
+    case 'q':  /* Salir (estilo htop/less/vim) */
         state->running = false;
         break;
     case KEY_UP:

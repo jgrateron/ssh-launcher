@@ -323,7 +323,7 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
 
     /* ---- Recents Panel ---- */
     int recents_color = recents_active ? COLOR_PANEL_ACTIVE : COLOR_PANEL_INACTIVE;
-    draw_titled_box(panels->recents_panel, " RECENTES ", recents_color);
+    draw_titled_box(panels->recents_panel, " RECIENTES ", recents_color);
 
     if (state->history_count == 0) {
         int h, w;

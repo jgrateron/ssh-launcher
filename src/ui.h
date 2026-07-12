@@ -3,14 +3,17 @@
 
 #include <ncurses.h>
 
-/* Color pair IDs — semantic roles, colors set by active theme */
+/* Color pair IDs — semantic roles, colors set by active theme.
+ * Both panels share the same background (COLOR_TEXT).
+ * The active panel stands out via its title/border (COLOR_PANEL_ACTIVE),
+ * while the inactive panel is subdued (COLOR_PANEL_INACTIVE). */
 enum {
-    COLOR_DEFAULT        = 1,  /* body text */
-    COLOR_HEADER         = 2,  /* title bar */
-    COLOR_RECENT         = 3,  /* recent hosts entries */
-    COLOR_SELECTED       = 4,  /* highlighted selection */
-    COLOR_STATUS         = 5,  /* status bar */
-    COLOR_SEARCH_HIGHLIGHT = 6,  /* search matches */
+    COLOR_HEADER        = 1,  /* title bar at the top */
+    COLOR_PANEL_ACTIVE  = 2,  /* active panel: border + title */
+    COLOR_PANEL_INACTIVE= 3,  /* inactive panel: border + title (subdued) */
+    COLOR_TEXT          = 4,  /* host entries in both panels */
+    COLOR_SELECTED      = 5,  /* highlighted host entry */
+    COLOR_STATUS        = 6,  /* status bar at the bottom */
 };
 
 /* Number of available themes */

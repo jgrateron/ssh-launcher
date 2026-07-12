@@ -64,14 +64,14 @@ cp sample_ssh_config ~/.ssh/config
 
 ## Themes
 
-6 built-in themes, cycle with `F2`:
+6 built-in themes, cycle with `F2`. Both panels share the same background; the active panel shows its title, the inactive panel's title is hidden or subdued.
 
-0. **Default** — cyan, green, and blue on black
-1. **Light** — dark text on light backgrounds
+0. **Default** — cyan header, green active on black
+1. **Light** — dark text on white, blue accents
 2. **Monochrome** — black and white only
-3. **Ocean** — deep blues and cyans
-4. **Retro** — amber and green, vintage terminal style
-5. **Solarized** — solarized dark palette
+3. **Nord** — cool bluish palette
+4. **Gruvbox** — warm retro tones (yellow/green)
+5. **Solarized** — teal/green solarized dark palette
 
 The selected theme persists across sessions in `~/.config/ssh-launcher/theme`.
 

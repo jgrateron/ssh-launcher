@@ -9,68 +9,68 @@
 
 /* ---- Theme definitions ---- */
 typedef struct {
-    short fg_default, bg_default;
-    short fg_header,  bg_header;
-    short fg_recent,  bg_recent;
-    short fg_selected,bg_selected;
-    short fg_status,  bg_status;
-    short fg_highlight, bg_highlight;
+    short fg_header,    bg_header;     /* title bar */
+    short fg_active,    bg_active;     /* active panel: border + title */
+    short fg_inactive,  bg_inactive;   /* inactive panel: border + title (subdued) */
+    short fg_text,      bg_text;       /* host entries in both panels */
+    short fg_select,    bg_select;     /* highlighted host entry */
+    short fg_status,    bg_status;     /* status bar */
     const char* name;
 } Theme;
 
 static const Theme themes[THEME_COUNT] = {
-    /* 0: Default — cyan/green/blue on black */
-    { COLOR_WHITE,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_CYAN,
-      COLOR_GREEN,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_WHITE,
-      COLOR_WHITE,  COLOR_BLUE,
-      COLOR_YELLOW, COLOR_BLACK,
+    /* 0: Default — dark background, cyan header, green active */
+    { COLOR_BLACK,  COLOR_CYAN,     /* header: black on cyan */
+      COLOR_GREEN,  COLOR_BLACK,    /* active panel: green on black */
+      COLOR_BLACK,  COLOR_BLACK,    /* inactive panel: black on black (title hidden) */
+      COLOR_WHITE,  COLOR_BLACK,    /* text: white on black */
+      COLOR_BLACK,  COLOR_GREEN,    /* selected: black on green */
+      COLOR_WHITE,  COLOR_BLUE,     /* status: white on blue */
       "Default" },
 
-    /* 1: Light — dark text on light backgrounds */
-    { COLOR_BLACK,  COLOR_WHITE,
-      COLOR_WHITE,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_WHITE,
-      COLOR_WHITE,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_WHITE,
-      COLOR_RED,    COLOR_WHITE,
+    /* 1: Light — light background, dark accents */
+    { COLOR_WHITE,  COLOR_BLACK,    /* header: white on black */
+      COLOR_BLUE,   COLOR_WHITE,    /* active panel: blue on white */
+      COLOR_BLACK,  COLOR_WHITE,    /* inactive panel: black on white (dim) */
+      COLOR_BLACK,  COLOR_WHITE,    /* text: black on white */
+      COLOR_WHITE,  COLOR_BLUE,     /* selected: white on blue */
+      COLOR_BLACK,  COLOR_WHITE,    /* status: black on white */
       "Light" },
 
     /* 2: Monochrome — black & white only */
-    { COLOR_WHITE,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_WHITE,
-      COLOR_WHITE,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_WHITE,
-      COLOR_WHITE,  COLOR_BLACK,
-      COLOR_WHITE,  COLOR_BLACK,
+    { COLOR_WHITE,  COLOR_BLACK,    /* header: white on black */
+      COLOR_BLACK,  COLOR_WHITE,    /* active: reverse video */
+      COLOR_WHITE,  COLOR_BLACK,    /* inactive: dim */
+      COLOR_WHITE,  COLOR_BLACK,    /* text: white on black */
+      COLOR_BLACK,  COLOR_WHITE,    /* selected: reverse video */
+      COLOR_WHITE,  COLOR_BLACK,    /* status */
       "Monochrome" },
 
-    /* 3: Ocean — deep blues and cyans */
-    { COLOR_WHITE,  COLOR_BLUE,
-      COLOR_CYAN,   COLOR_BLUE,
-      COLOR_WHITE,  COLOR_BLUE,
-      COLOR_BLACK,  COLOR_CYAN,
-      COLOR_CYAN,   COLOR_BLUE,
-      COLOR_YELLOW, COLOR_BLUE,
-      "Ocean" },
+    /* 3: Nord — cool bluish palette */
+    { COLOR_WHITE,  COLOR_BLUE,     /* header */
+      COLOR_CYAN,   COLOR_BLACK,    /* active: cyan on black */
+      COLOR_BLUE,   COLOR_BLACK,    /* inactive: dark blue on black */
+      COLOR_WHITE,  COLOR_BLACK,    /* text */
+      COLOR_BLACK,  COLOR_CYAN,     /* selected */
+      COLOR_CYAN,   COLOR_BLUE,     /* status */
+      "Nord" },
 
-    /* 4: Retro — amber/green on black (vintage terminal) */
-    { COLOR_YELLOW, COLOR_BLACK,
-      COLOR_BLACK,  COLOR_YELLOW,
-      COLOR_GREEN,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_YELLOW,
-      COLOR_YELLOW, COLOR_BLACK,
-      COLOR_GREEN,  COLOR_BLACK,
-      "Retro" },
+    /* 4: Gruvbox — warm retro tones */
+    { COLOR_BLACK,  COLOR_YELLOW,   /* header: black on yellow */
+      COLOR_YELLOW, COLOR_BLACK,    /* active: yellow on black */
+      COLOR_BLACK,  COLOR_BLACK,    /* inactive: hidden on black */
+      COLOR_WHITE,  COLOR_BLACK,    /* text */
+      COLOR_BLACK,  COLOR_YELLOW,   /* selected: black on yellow */
+      COLOR_YELLOW, COLOR_BLACK,    /* status */
+      "Gruvbox" },
 
-    /* 5: Solarized Dark — solarized-inspired palette */
-    { COLOR_WHITE,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_CYAN,
-      COLOR_GREEN,  COLOR_BLACK,
-      COLOR_BLACK,  COLOR_GREEN,
-      COLOR_WHITE,  COLOR_BLUE,
-      COLOR_YELLOW, COLOR_BLACK,
+    /* 5: Solarized Dark — teal/green solarized palette */
+    { COLOR_BLACK,  COLOR_CYAN,     /* header */
+      COLOR_GREEN,  COLOR_BLACK,    /* active: green on black */
+      COLOR_CYAN,   COLOR_BLACK,    /* inactive: subtle cyan on black */
+      COLOR_WHITE,  COLOR_BLACK,    /* text */
+      COLOR_BLACK,  COLOR_GREEN,    /* selected */
+      COLOR_WHITE,  COLOR_BLUE,     /* status */
       "Solarized" },
 };
 
@@ -79,12 +79,12 @@ void ui_apply_theme(int theme_index) {
     int t = theme_index % THEME_COUNT;
     if (t < 0) t = 0;
 
-    init_pair(COLOR_DEFAULT,   themes[t].fg_default,   themes[t].bg_default);
-    init_pair(COLOR_HEADER,    themes[t].fg_header,    themes[t].bg_header);
-    init_pair(COLOR_RECENT,    themes[t].fg_recent,    themes[t].bg_recent);
-    init_pair(COLOR_SELECTED,  themes[t].fg_selected,  themes[t].bg_selected);
-    init_pair(COLOR_STATUS,    themes[t].fg_status,    themes[t].bg_status);
-    init_pair(COLOR_SEARCH_HIGHLIGHT, themes[t].fg_highlight, themes[t].bg_highlight);
+    init_pair(COLOR_HEADER,        themes[t].fg_header,   themes[t].bg_header);
+    init_pair(COLOR_PANEL_ACTIVE,  themes[t].fg_active,   themes[t].bg_active);
+    init_pair(COLOR_PANEL_INACTIVE,themes[t].fg_inactive, themes[t].bg_inactive);
+    init_pair(COLOR_TEXT,          themes[t].fg_text,     themes[t].bg_text);
+    init_pair(COLOR_SELECTED,      themes[t].fg_select,   themes[t].bg_select);
+    init_pair(COLOR_STATUS,        themes[t].fg_status,   themes[t].bg_status);
 }
 
 int ui_next_theme(int current) {
@@ -103,21 +103,16 @@ int ui_theme_save(int theme_index) {
     char path[512];
     theme_config_path(path, sizeof(path));
 
-    /* Create parent directories if needed */
     char dir[512];
     snprintf(dir, sizeof(dir), "%s/.config/ssh-launcher",
              getenv("HOME") ? getenv("HOME") : ".");
     mkdir(dir, 0755);
-
-    /* Also ensure .config exists (for clean environments) */
-    char config_dir[512];
-    snprintf(config_dir, sizeof(config_dir), "%s/.config",
+    snprintf(dir, sizeof(dir), "%s/.config",
              getenv("HOME") ? getenv("HOME") : ".");
-    mkdir(config_dir, 0755);
+    mkdir(dir, 0755);
 
     FILE* f = fopen(path, "w");
     if (!f) return -1;
-
     fprintf(f, "%d\n", theme_index % THEME_COUNT);
     fclose(f);
     return 0;
@@ -128,17 +123,15 @@ int ui_theme_load(void) {
     theme_config_path(path, sizeof(path));
 
     FILE* f = fopen(path, "r");
-    if (!f) return 0;  /* No saved theme → use default */
+    if (!f) return 0;
 
     int index = 0;
     if (fscanf(f, "%d", &index) != 1) {
         fclose(f);
         return 0;
     }
-
     fclose(f);
 
-    /* Clamp to valid range */
     if (index < 0) index = 0;
     if (index >= THEME_COUNT) index = 0;
     return index;
@@ -158,13 +151,12 @@ int ui_init(UIPanels* panels) {
     cbreak();
     noecho();
     curs_set(0);
-    keypad(stdscr, TRUE);  /* enable function keys on stdscr for input */
+    keypad(stdscr, TRUE);
 
     /* Apply default theme (index 0) */
     ui_apply_theme(0);
 
-    /* Create independent windows (non-overlapping screen regions).
-     * Layout: header (1) + panels (LINES-4) + status (3) = LINES */
+    /* Layout: header (1) + panels (LINES-4) + status (3) = LINES */
     panels->header_win    = newwin(1,           COLS,            0, 0);
     panels->recents_panel = newwin(LINES - 4,   COLS / 2,        1, 0);
     panels->all_panel     = newwin(LINES - 4,   COLS - COLS / 2, 1, COLS / 2);
@@ -181,7 +173,6 @@ int ui_init(UIPanels* panels) {
     keypad(panels->all_panel, TRUE);
     keypad(panels->status_win, TRUE);
 
-    /* Initial screen clear */
     werase(stdscr);
     wnoutrefresh(stdscr);
     doupdate();
@@ -234,7 +225,7 @@ static void draw_titled_box(WINDOW* win, const char* title, int color_pair) {
 
 /* Draw host entries from history array */
 static void draw_host_list(WINDOW* win, char entries[][HOST_NAME_MAX], int count,
-                           int selected, int scroll_offset, int color_pair) {
+                           int selected, int scroll_offset) {
     int height, width;
     getmaxyx(win, height, width);
     int visible_rows = height - 2;
@@ -248,7 +239,7 @@ static void draw_host_list(WINDOW* win, char entries[][HOST_NAME_MAX], int count
         if (idx == selected) {
             wattron(win, COLOR_PAIR(COLOR_SELECTED));
         } else {
-            wattron(win, COLOR_PAIR(color_pair));
+            wattron(win, COLOR_PAIR(COLOR_TEXT));
         }
 
         const char* marker = (idx == selected) ? "> " : "  ";
@@ -256,13 +247,13 @@ static void draw_host_list(WINDOW* win, char entries[][HOST_NAME_MAX], int count
         mvwprintw(win, y, x, "%s%-*.*s", marker, max_len, max_len, entries[idx]);
 
         wattroff(win, COLOR_PAIR(COLOR_SELECTED));
-        wattroff(win, COLOR_PAIR(color_pair));
+        wattroff(win, COLOR_PAIR(COLOR_TEXT));
     }
 }
 
 /* Draw host entries from a HostList */
 static void draw_hostlist(WINDOW* win, const HostList* list,
-                          int selected, int scroll_offset, int color_pair) {
+                          int selected, int scroll_offset) {
     int height, width;
     getmaxyx(win, height, width);
     int visible_rows = height - 2;
@@ -276,7 +267,7 @@ static void draw_hostlist(WINDOW* win, const HostList* list,
         if (idx == selected) {
             wattron(win, COLOR_PAIR(COLOR_SELECTED));
         } else {
-            wattron(win, COLOR_PAIR(color_pair));
+            wattron(win, COLOR_PAIR(COLOR_TEXT));
         }
 
         const char* marker = (idx == selected) ? "> " : "  ";
@@ -284,7 +275,7 @@ static void draw_hostlist(WINDOW* win, const HostList* list,
         mvwprintw(win, y, x, "%s%-*.*s", marker, max_len, max_len, list->names[idx]);
 
         wattroff(win, COLOR_PAIR(COLOR_SELECTED));
-        wattroff(win, COLOR_PAIR(color_pair));
+        wattroff(win, COLOR_PAIR(COLOR_TEXT));
     }
 }
 
@@ -301,26 +292,31 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
         return;
     }
 
+    bool recents_active = (state->active_panel == PANEL_RECENTS);
+
     /* ---- Header ---- */
     draw_titled_box(panels->header_win, "SSH LAUNCHER v1.0", COLOR_HEADER);
     mvwprintw(panels->header_win, 0, COLS - 4, "[?]");
 
     /* ---- Recents Panel ---- */
-    draw_titled_box(panels->recents_panel, " RECENTES ", COLOR_RECENT);
+    int recents_color = recents_active ? COLOR_PANEL_ACTIVE : COLOR_PANEL_INACTIVE;
+    draw_titled_box(panels->recents_panel, recents_active ? " RECENTES " : NULL,
+                    recents_color);
 
     if (state->history_count == 0) {
         int h, w;
         getmaxyx(panels->recents_panel, h, w);
-        wattron(panels->recents_panel, COLOR_PAIR(COLOR_RECENT));
+        wattron(panels->recents_panel, COLOR_PAIR(recents_color));
         mvwprintw(panels->recents_panel, h / 2, (w - 7) / 2, "(vacio)");
-        wattroff(panels->recents_panel, COLOR_PAIR(COLOR_RECENT));
+        wattroff(panels->recents_panel, COLOR_PAIR(recents_color));
     } else {
         draw_host_list(panels->recents_panel, (char(*)[HOST_NAME_MAX])state->history,
                        state->history_count, state->recents_selected,
-                       state->recents_scroll, COLOR_RECENT);
+                       state->recents_scroll);
     }
 
     /* ---- All Hosts Panel ---- */
+    int all_color = recents_active ? COLOR_PANEL_INACTIVE : COLOR_PANEL_ACTIVE;
     char all_title[320];
     if (state->is_searching && state->search_buffer[0] != '\0') {
         snprintf(all_title, sizeof(all_title), " BUSQUEDA: %s ",
@@ -328,13 +324,13 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     } else {
         snprintf(all_title, sizeof(all_title), " TODOS LOS SERVIDORES ");
     }
-    draw_titled_box(panels->all_panel, all_title, COLOR_SELECTED);
+    draw_titled_box(panels->all_panel, recents_active ? NULL : all_title, all_color);
 
     int host_count = state->filtered_hosts ? state->filtered_hosts->count : 0;
     if (host_count == 0) {
         int h, w;
         getmaxyx(panels->all_panel, h, w);
-        wattron(panels->all_panel, COLOR_PAIR(COLOR_DEFAULT));
+        wattron(panels->all_panel, COLOR_PAIR(COLOR_TEXT));
         const char* empty_msg;
         if (state->all_hosts && state->all_hosts->count == 0) {
             empty_msg = "No hosts in ~/.ssh/config";
@@ -345,30 +341,18 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
         }
         mvwprintw(panels->all_panel, h / 2, (w - (int)strlen(empty_msg)) / 2,
                   "%s", empty_msg);
-        wattroff(panels->all_panel, COLOR_PAIR(COLOR_DEFAULT));
+        wattroff(panels->all_panel, COLOR_PAIR(COLOR_TEXT));
     } else {
         draw_hostlist(panels->all_panel, state->filtered_hosts,
-                      state->all_selected, state->all_scroll, COLOR_DEFAULT);
-    }
-
-    /* Highlight active panel border */
-    if (state->active_panel == PANEL_RECENTS) {
-        wattron(panels->recents_panel, COLOR_PAIR(COLOR_SELECTED));
-        wborder(panels->recents_panel, 0, 0, 0, 0, 0, 0, 0, 0);
-        wattroff(panels->recents_panel, COLOR_PAIR(COLOR_SELECTED));
-    } else {
-        wattron(panels->all_panel, COLOR_PAIR(COLOR_SELECTED));
-        wborder(panels->all_panel, 0, 0, 0, 0, 0, 0, 0, 0);
-        wattroff(panels->all_panel, COLOR_PAIR(COLOR_SELECTED));
+                      state->all_selected, state->all_scroll);
     }
 
     /* ---- Status Bar ---- */
     draw_titled_box(panels->status_win, NULL, COLOR_STATUS);
 
-    /* Row 1 of status: search input */
+    /* Row 1: search input */
     wattron(panels->status_win, COLOR_PAIR(COLOR_STATUS));
-    mvwprintw(panels->status_win, 1, 2, "Busqueda: %s",
-              state->search_buffer);
+    mvwprintw(panels->status_win, 1, 2, "Busqueda: %s", state->search_buffer);
     if (state->is_searching) {
         wattron(panels->status_win, A_BLINK);
         int cursor_x = 12 + state->search_cursor;
@@ -377,14 +361,14 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     }
     wattroff(panels->status_win, COLOR_PAIR(COLOR_STATUS));
 
-    /* Row 2 of status: shortcuts */
+    /* Row 2: shortcuts */
     wattron(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
     mvwprintw(panels->status_win, 2, 2,
               "[Enter] Conectar  [/] Buscar  [Tab] Panel  [F2] Temas  [Esc] %s",
               state->is_searching ? "Cancelar" : "Salir");
     wattroff(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
 
-    /* Refresh all windows — independent newwin's, order doesn't matter */
+    /* Refresh all windows */
     wnoutrefresh(panels->header_win);
     wnoutrefresh(panels->recents_panel);
     wnoutrefresh(panels->all_panel);

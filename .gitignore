@@ -2,6 +2,9 @@
 build/
 ssh-launcher
 
+# Sample config (solo para testing local)
+sample_ssh_config
+
 # Editor files
 *~
 *.swp

@@ -34,8 +34,7 @@ AppState* app_init(void) {
 
     snprintf(state->config_path, sizeof(state->config_path),
              "%s/.ssh/config", home);
-    snprintf(state->history_path, sizeof(state->history_path),
-             "%s/.ssh_launcher_history", home);
+    history_default_path(state->history_path, sizeof(state->history_path));
 
     /* Parse SSH config */
     state->all_hosts = host_list_parse(state->config_path);

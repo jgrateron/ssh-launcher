@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 const char* history_default_path(char* buf, size_t bufsize) {
     const char* home = getenv("HOME");
     if (!home) home = ".";
-    snprintf(buf, bufsize, "%s/.ssh_launcher_history", home);
+    snprintf(buf, bufsize, "%s/.config/ssh-launcher/history", home);
     return buf;
 }
 
@@ -40,6 +41,15 @@ int history_load(const char* path, char buffer[HISTORY_MAX][HOST_NAME_MAX], int*
 
 int history_save(const char* path, const char* host) {
     if (!path || !host) return -1;
+
+    /* Ensure parent directory exists */
+    char dir[512];
+    const char* home = getenv("HOME");
+    if (!home) home = ".";
+    snprintf(dir, sizeof(dir), "%s/.config/ssh-launcher", home);
+    mkdir(dir, 0755);
+    snprintf(dir, sizeof(dir), "%s/.config", home);
+    mkdir(dir, 0755);
 
     /* Load existing entries */
     char existing[HISTORY_MAX][HOST_NAME_MAX];

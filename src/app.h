@@ -37,6 +37,9 @@ typedef struct AppState {
     char       history[HISTORY_MAX][HOST_NAME_MAX];
     int        history_count;
 
+    /* Theme */
+    int        theme_index;
+
     /* File paths */
     char       config_path[HOST_NAME_MAX * 2];
     char       history_path[HOST_NAME_MAX * 2];

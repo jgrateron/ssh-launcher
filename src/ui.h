@@ -3,15 +3,18 @@
 
 #include <ncurses.h>
 
-/* Color pair IDs */
+/* Color pair IDs — semantic roles, colors set by active theme */
 enum {
-    COLOR_DEFAULT        = 1,  /* white on black */
-    COLOR_HEADER         = 2,  /* black on cyan (reversed) */
-    COLOR_RECENT         = 3,  /* green on black */
-    COLOR_SELECTED       = 4,  /* black on white (standout) */
-    COLOR_STATUS         = 5,  /* white on blue */
-    COLOR_SEARCH_HIGHLIGHT = 6,  /* yellow on black */
+    COLOR_DEFAULT        = 1,  /* body text */
+    COLOR_HEADER         = 2,  /* title bar */
+    COLOR_RECENT         = 3,  /* recent hosts entries */
+    COLOR_SELECTED       = 4,  /* highlighted selection */
+    COLOR_STATUS         = 5,  /* status bar */
+    COLOR_SEARCH_HIGHLIGHT = 6,  /* search matches */
 };
+
+/* Number of available themes */
+#define THEME_COUNT 6
 
 /* Panel window handles */
 typedef struct {
@@ -42,5 +45,11 @@ void ui_draw(const UIPanels* panels, const struct AppState* state);
 
 /* Get keyboard input. Returns the key code (or character). */
 int ui_get_input(void);
+
+/* Apply a theme by re-initializing all color pairs. */
+void ui_apply_theme(int theme_index);
+
+/* Return the next theme index (wraps around). */
+int ui_next_theme(int current);
 
 #endif /* SSH_LAUNCHER_UI_H */

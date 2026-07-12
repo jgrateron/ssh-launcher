@@ -62,6 +62,7 @@ AppState* app_init(void) {
     state->search_buffer[0] = '\0';
     state->search_cursor = 0;
     state->running = true;
+    state->theme_index = 0;
 
     /* Initialize ncurses */
     if (ui_init(&state->panels) != 0) {
@@ -324,6 +325,10 @@ static void handle_input(AppState* state, int ch) {
         case '\t':  /* Tab: toggle panel while searching */
             toggle_panel(state);
             return;
+        case KEY_F(2):  /* Cycle color theme */
+            state->theme_index = ui_next_theme(state->theme_index);
+            ui_apply_theme(state->theme_index);
+            return;
         default:
             if (ch >= 32 && ch <= 126) {
                 append_search_char(state, (char)ch);
@@ -360,6 +365,10 @@ static void handle_input(AppState* state, int ch) {
         break;
     case '/':
         start_search(state);
+        break;
+    case KEY_F(2):  /* Cycle color theme */
+        state->theme_index = ui_next_theme(state->theme_index);
+        ui_apply_theme(state->theme_index);
         break;
     case KEY_RESIZE:
         /* ncurses handles basic resize; we just need to clamp */

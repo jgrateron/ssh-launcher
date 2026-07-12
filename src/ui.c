@@ -3,6 +3,91 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* ---- Theme definitions ---- */
+typedef struct {
+    short fg_default, bg_default;
+    short fg_header,  bg_header;
+    short fg_recent,  bg_recent;
+    short fg_selected,bg_selected;
+    short fg_status,  bg_status;
+    short fg_highlight, bg_highlight;
+    const char* name;
+} Theme;
+
+static const Theme themes[THEME_COUNT] = {
+    /* 0: Default — cyan/green/blue on black */
+    { COLOR_WHITE,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_CYAN,
+      COLOR_GREEN,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_WHITE,
+      COLOR_WHITE,  COLOR_BLUE,
+      COLOR_YELLOW, COLOR_BLACK,
+      "Default" },
+
+    /* 1: Light — dark text on light backgrounds */
+    { COLOR_BLACK,  COLOR_WHITE,
+      COLOR_WHITE,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_WHITE,
+      COLOR_WHITE,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_WHITE,
+      COLOR_RED,    COLOR_WHITE,
+      "Light" },
+
+    /* 2: Monochrome — black & white only */
+    { COLOR_WHITE,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_WHITE,
+      COLOR_WHITE,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_WHITE,
+      COLOR_WHITE,  COLOR_BLACK,
+      COLOR_WHITE,  COLOR_BLACK,
+      "Monochrome" },
+
+    /* 3: Ocean — deep blues and cyans */
+    { COLOR_WHITE,  COLOR_BLUE,
+      COLOR_CYAN,   COLOR_BLUE,
+      COLOR_WHITE,  COLOR_BLUE,
+      COLOR_BLACK,  COLOR_CYAN,
+      COLOR_CYAN,   COLOR_BLUE,
+      COLOR_YELLOW, COLOR_BLUE,
+      "Ocean" },
+
+    /* 4: Retro — amber/green on black (vintage terminal) */
+    { COLOR_YELLOW, COLOR_BLACK,
+      COLOR_BLACK,  COLOR_YELLOW,
+      COLOR_GREEN,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_YELLOW,
+      COLOR_YELLOW, COLOR_BLACK,
+      COLOR_GREEN,  COLOR_BLACK,
+      "Retro" },
+
+    /* 5: Solarized Dark — solarized-inspired palette */
+    { COLOR_WHITE,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_CYAN,
+      COLOR_GREEN,  COLOR_BLACK,
+      COLOR_BLACK,  COLOR_GREEN,
+      COLOR_WHITE,  COLOR_BLUE,
+      COLOR_YELLOW, COLOR_BLACK,
+      "Solarized" },
+};
+
+/* ---- Public API ---- */
+void ui_apply_theme(int theme_index) {
+    int t = theme_index % THEME_COUNT;
+    if (t < 0) t = 0;
+
+    init_pair(COLOR_DEFAULT,   themes[t].fg_default,   themes[t].bg_default);
+    init_pair(COLOR_HEADER,    themes[t].fg_header,    themes[t].bg_header);
+    init_pair(COLOR_RECENT,    themes[t].fg_recent,    themes[t].bg_recent);
+    init_pair(COLOR_SELECTED,  themes[t].fg_selected,  themes[t].bg_selected);
+    init_pair(COLOR_STATUS,    themes[t].fg_status,    themes[t].bg_status);
+    init_pair(COLOR_SEARCH_HIGHLIGHT, themes[t].fg_highlight, themes[t].bg_highlight);
+}
+
+int ui_next_theme(int current) {
+    return (current + 1) % THEME_COUNT;
+}
+
+/* ---- Init / shutdown ---- */
 int ui_init(UIPanels* panels) {
     if (!panels) return -1;
 
@@ -18,13 +103,8 @@ int ui_init(UIPanels* panels) {
     curs_set(0);
     keypad(stdscr, TRUE);  /* enable function keys on stdscr for input */
 
-    /* Initialize color pairs */
-    init_pair(COLOR_DEFAULT,   COLOR_WHITE,  COLOR_BLACK);
-    init_pair(COLOR_HEADER,    COLOR_BLACK,  COLOR_CYAN);
-    init_pair(COLOR_RECENT,    COLOR_GREEN,  COLOR_BLACK);
-    init_pair(COLOR_SELECTED,  COLOR_BLACK,  COLOR_WHITE);
-    init_pair(COLOR_STATUS,    COLOR_WHITE,  COLOR_BLUE);
-    init_pair(COLOR_SEARCH_HIGHLIGHT, COLOR_YELLOW, COLOR_BLACK);
+    /* Apply default theme (index 0) */
+    ui_apply_theme(0);
 
     /* Create independent windows (non-overlapping screen regions).
      * Layout: header (1) + panels (LINES-4) + status (3) = LINES */
@@ -243,7 +323,7 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     /* Row 2 of status: shortcuts */
     wattron(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
     mvwprintw(panels->status_win, 2, 2,
-              "[Enter] Conectar  [/] Buscar  [Tab] Panel  [Esc] %s",
+              "[Enter] Conectar  [/] Buscar  [Tab] Panel  [F2] Temas  [Esc] %s",
               state->is_searching ? "Cancelar" : "Salir");
     wattroff(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
 

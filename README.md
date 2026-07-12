@@ -1,84 +1,108 @@
 # SSH Launcher
 
-TUI en C11 + ncurses para gestionar conexiones SSH. Lee `~/.ssh/config`, permite navegar, filtrar y conectarse a servidores desde una interfaz de terminal de doble panel.
+A C11 + ncurses TUI for managing SSH connections. Reads `~/.ssh/config`, lets you navigate, filter, and connect to servers from a dual-panel terminal interface.
 
-## Requisitos
+## Requirements
 
-- GCC (C11)
-- ncurses (`libncurses-dev`)
+- GCC (C11) or compatible compiler
+- ncurses development library
 - Linux / Unix
 
-## Instalación
+## Installation
+
+### 1. Install dependencies
+
+**Debian / Ubuntu:**
+```bash
+sudo apt install build-essential libncurses-dev
+```
+
+**Fedora / RHEL:**
+```bash
+sudo dnf install gcc ncurses-devel
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S gcc ncurses
+```
+
+**macOS (Homebrew):**
+```bash
+brew install ncurses
+```
+
+### 2. Build and install
 
 ```bash
 make
-sudo make install   # instala en /usr/local/bin/
+sudo make install   # installs to /usr/local/bin/
 ```
 
-## Uso
+## Usage
 
 ```bash
 ./ssh-launcher
 ```
 
-Asegurate de tener un `~/.ssh/config` con hosts configurados. Podés usar `sample_ssh_config` como base:
+Make sure you have a `~/.ssh/config` with hosts configured. You can use `sample_ssh_config` as a starting point:
 
 ```bash
 cp sample_ssh_config ~/.ssh/config
 ```
 
-## Controles
+## Controls
 
-| Tecla | Acción |
+| Key | Action |
 |---|---|
-| `↑` `↓` / `j` `k` | Navegar lista |
-| `Tab` | Cambiar panel (Recientes ↔ Todos) |
-| `Enter` | Conectar por SSH al host seleccionado |
-| `/` | Buscar (filtro fuzzy incremental) |
-| `F2` | Cambiar tema de color |
-| `Esc` | Cancelar búsqueda / Salir |
+| `↑` `↓` / `j` `k` | Navigate list |
+| `Tab` | Switch panel (Recent ↔ All) |
+| `Enter` | Connect via SSH to selected host |
+| `/` | Search (incremental fuzzy filter) |
+| `F2` | Cycle color theme |
+| `Esc` | Cancel search / Exit |
 
-## Temas
+## Themes
 
-6 temas incluidos, ciclo con `F2`:
+6 built-in themes, cycle with `F2`:
 
-0. **Default** — cyan, verde y azul sobre negro
-1. **Light** — texto oscuro sobre fondo claro
-2. **Monochrome** — solo blanco y negro
-3. **Ocean** — azules profundos y cyans
-4. **Retro** — ámbar y verde estilo terminal vintage
-5. **Solarized** — paleta solarized oscura
+0. **Default** — cyan, green, and blue on black
+1. **Light** — dark text on light backgrounds
+2. **Monochrome** — black and white only
+3. **Ocean** — deep blues and cyans
+4. **Retro** — amber and green, vintage terminal style
+5. **Solarized** — solarized dark palette
 
-El tema se guarda en `~/.config/ssh-launcher/theme`.
+The selected theme persists across sessions in `~/.config/ssh-launcher/theme`.
 
-## Archivos de datos
+## Data Files
 
-| Archivo | Ubicación |
+| File | Location |
 |---|---|
 | SSH config | `~/.ssh/config` |
-| Historial (últimos 5) | `~/.config/ssh-launcher/history` |
-| Tema guardado | `~/.config/ssh-launcher/theme` |
+| History (last 5) | `~/.config/ssh-launcher/history` |
+| Saved theme | `~/.config/ssh-launcher/theme` |
 
-## Estructura del proyecto
+## Project Structure
 
 ```
 src/
-  main.c          # Punto de entrada
-  app.h / app.c   # Estado, bucle de eventos, orquestación
-  parser.h / .c   # Parser de ~/.ssh/config
-  history.h / .c  # Persistencia de historial
-  search.h / .c   # Búsqueda fuzzy (character-skip)
-  ui.h / ui.c     # Interfaz ncurses (ventanas, temas, input)
+  main.c          # Entry point
+  app.h / app.c   # State, event loop, orchestration
+  parser.h / .c   # SSH config parser (~/.ssh/config)
+  history.h / .c  # History persistence (last 5 connections)
+  search.h / .c   # Fuzzy search (character-skip matching)
+  ui.h / ui.c     # ncurses UI (windows, themes, input)
 ```
 
-## Compilación
+## Build
 
 ```bash
-make clean && make    # C11, -Wall -Wextra -pedantic, cero warnings
+make clean && make    # C11, -Wall -Wextra -pedantic, zero warnings
 ```
 
-## Búsqueda fuzzy
+## Fuzzy Search
 
-La búsqueda usa **character-skip matching** (tipo fzf): todos los caracteres del patrón deben aparecer en orden en el nombre del host, sin necesidad de ser consecutivos.
+Uses **character-skip matching** (fzf-style): all characters in the pattern must appear in order within the host name, but not necessarily consecutively.
 
-Ejemplo: `prd` coincide con `prod-web-01` (p, r, d aparecen en orden).
+Example: `prd` matches `prod-web-01` (p, r, d appear in order).

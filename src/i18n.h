@@ -29,13 +29,8 @@ typedef enum {
 /* Translate a key to the current language */
 const char* t(StringKey key);
 
-/* Set/get/toggle language */
-void        i18n_set_language(Language lang);
-Language    i18n_get_language(void);
-Language    i18n_toggle(void);
-
-/* Persist language to ~/.config/ssh-launcher/language */
-int         i18n_save(void);
-void        i18n_load(void);
+/* Auto-detect language from $LANG env var and set it.
+ * Call once at startup before any t() calls. */
+void i18n_load(void);
 
 #endif /* SSH_LAUNCHER_I18N_H */

@@ -342,10 +342,6 @@ static void handle_input(AppState* state, int ch) {
         case '\t':  /* Tab: toggle panel while searching */
             toggle_panel(state);
             return;
-        case KEY_F(1):  /* Toggle language */
-            i18n_toggle();
-            i18n_save();
-            return;
         case KEY_F(2):  /* Cycle color theme */
             state->theme_index = ui_next_theme(state->theme_index);
             ui_apply_theme(state->theme_index);
@@ -388,10 +384,6 @@ static void handle_input(AppState* state, int ch) {
         break;
     case '/':
         start_search(state);
-        break;
-    case KEY_F(1):  /* Toggle language */
-        i18n_toggle();
-        i18n_save();
         break;
     case KEY_F(2):  /* Cycle color theme */
         state->theme_index = ui_next_theme(state->theme_index);

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -283,6 +284,10 @@ static void app_connect(AppState* state, const char* host) {
 }
 
 /* ---- Mouse Handling ---- */
+#define DOUBLE_CLICK_MS 400
+
+static const char* get_selected_host(const AppState* state);
+
 static void handle_mouse(AppState* state) {
     MEVENT event;
     if (getmouse(&event) != OK) return;
@@ -299,12 +304,26 @@ static void handle_mouse(AppState* state) {
         return;
     }
 
-    /* Left click — only on button press, not release */
+    /* Left click — only on button press/click, not release */
     if (!(event.bstate & BUTTON1_PRESSED) && !(event.bstate & BUTTON1_CLICKED))
         return;
 
     /* Ignore clicks on header (row 0) and status bar (row >= LINES-3) */
     if (event.y < 1 || event.y >= LINES - 3) return;
+
+    /* Double-click detection: same row as last click within threshold */
+    static clock_t last_click_time = 0;
+    static int    last_click_y    = -1;
+    static int    last_click_x    = -1;
+
+    clock_t now = clock();
+    double elapsed_ms = (double)(now - last_click_time) * 1000.0 / CLOCKS_PER_SEC;
+    bool double_click = (last_click_y == event.y && last_click_x == event.x &&
+                         elapsed_ms < DOUBLE_CLICK_MS);
+
+    last_click_time = now;
+    last_click_y    = event.y;
+    last_click_x    = event.x;
 
     /* Determine which panel was clicked */
     if (event.x < left_width) {
@@ -312,8 +331,13 @@ static void handle_mouse(AppState* state) {
         if (state->history_count > 0) {
             state->active_panel = PANEL_RECENTS;
             int clicked_idx = (event.y - 2) + state->recents_scroll;
-            if (clicked_idx >= 0 && clicked_idx < state->history_count)
+            if (clicked_idx >= 0 && clicked_idx < state->history_count) {
                 state->recents_selected = clicked_idx;
+                if (double_click) {
+                    const char* host = get_selected_host(state);
+                    if (host) app_connect(state, host);
+                }
+            }
         }
     } else {
         /* Right panel (all servers) */
@@ -321,8 +345,13 @@ static void handle_mouse(AppState* state) {
         if (count > 0) {
             state->active_panel = PANEL_ALL;
             int clicked_idx = (event.y - 2) + state->all_scroll;
-            if (clicked_idx >= 0 && clicked_idx < count)
+            if (clicked_idx >= 0 && clicked_idx < count) {
                 state->all_selected = clicked_idx;
+                if (double_click) {
+                    const char* host = get_selected_host(state);
+                    if (host) app_connect(state, host);
+                }
+            }
         }
     }
 }

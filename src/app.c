@@ -246,8 +246,14 @@ static void delete_search_char_forward(AppState* state) {
 static void app_connect(AppState* state, const char* host) {
     if (!host || !state) return;
 
+    /* Copy host name BEFORE touching history — host may point into
+     * state->history[], and history_load() overwrites that array. */
+    char host_copy[HOST_NAME_MAX];
+    strncpy(host_copy, host, sizeof(host_copy) - 1);
+    host_copy[sizeof(host_copy) - 1] = '\0';
+
     /* Save to history */
-    history_save(state->history_path, host);
+    history_save(state->history_path, host_copy);
     history_load(state->history_path, state->history, &state->history_count);
     state->recents_selected = (state->history_count > 0) ? 0 : -1;
     state->recents_scroll = 0;
@@ -255,13 +261,13 @@ static void app_connect(AppState* state, const char* host) {
     /* Suspend ncurses */
     ui_suspend();
 
-    printf("Connecting to %s...\n\n", host);
+    printf("Connecting to %s...\n\n", host_copy);
     fflush(stdout);
 
     pid_t pid = fork();
     if (pid == 0) {
         /* Child: execute ssh */
-        execlp("ssh", "ssh", host, (char*)NULL);
+        execlp("ssh", "ssh", host_copy, (char*)NULL);
         fprintf(stderr, "ssh: command not found or exec failed: %s\n", strerror(errno));
         _exit(EXIT_FAILURE);
     } else if (pid > 0) {

@@ -2,6 +2,8 @@
 
 A C11 + ncurses TUI for managing SSH connections. Reads `~/.ssh/config`, lets you navigate, filter, and connect to servers from a dual-panel terminal interface.
 
+![SSH Launcher screenshot](resources/img1.png)
+
 ## Requirements
 
 - GCC (C11) or compatible compiler

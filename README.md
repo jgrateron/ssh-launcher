@@ -53,18 +53,32 @@ cp sample_ssh_config ~/.ssh/config
 
 ## Controls
 
+### Keyboard
+
 | Key | Action |
 |---|---|
 | `↑` `↓` / `j` `k` | Navigate list |
-| `Tab` | Switch panel (Recent ↔ All) |
+| `Tab` | Switch panel (Recents ↔ All) |
 | `Enter` | Connect via SSH to selected host |
 | `/` | Search (incremental fuzzy filter) |
 | `F2` | Cycle color theme |
 | `Esc` / `q` | Cancel search / Exit |
 
+### Mouse
+
+| Action | Behavior |
+|---|---|
+| Click | Activate panel + select host at clicked row |
+| Double-click | Select host + connect via SSH immediately |
+| Scroll wheel | Navigate up/down in active panel |
+
+## Language
+
+Language is auto-detected from the `$LANG` environment variable. Spanish (`es_*`) and English (everything else) are supported. No manual toggle needed.
+
 ## Themes
 
-6 built-in themes, cycle with `F2`. Both panels share the same background; the active panel shows its title, the inactive panel's title is hidden or subdued.
+6 built-in themes, cycle with `F2`. Both panels share the same background; the active panel's title stands out, the inactive panel is subdued but still visible.
 
 0. **Default** — cyan header, green active on black
 1. **Light** — dark text on white, blue accents
@@ -88,11 +102,12 @@ The selected theme persists across sessions in `~/.config/ssh-launcher/theme`.
 ```
 src/
   main.c          # Entry point
-  app.h / app.c   # State, event loop, orchestration
+  app.h / app.c   # State, event loop, SSH launch, mouse/input handling
   parser.h / .c   # SSH config parser (~/.ssh/config)
   history.h / .c  # History persistence (last 10 connections)
   search.h / .c   # Fuzzy search (character-skip matching)
-  ui.h / ui.c     # ncurses UI (windows, themes, input)
+  ui.h / ui.c     # ncurses UI (windows, themes, drawing, resize)
+  i18n.h / i18n.c # Language auto-detection ($LANG, ES/EN)
 ```
 
 ## Build

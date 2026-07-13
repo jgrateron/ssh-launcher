@@ -153,6 +153,8 @@ int ui_init(UIPanels* panels) {
     noecho();
     curs_set(0);
     keypad(stdscr, TRUE);
+    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+    mouseinterval(0);  /* no click resolution delay */
 
     /* Apply default theme (index 0) */
     ui_apply_theme(0);
@@ -187,6 +189,7 @@ void ui_suspend(void) {
 
 void ui_resume(void) {
     refresh();
+    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
 }
 
 void ui_shutdown(UIPanels* panels) {

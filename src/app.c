@@ -282,6 +282,51 @@ static void app_connect(AppState* state, const char* host) {
     ui_resume();
 }
 
+/* ---- Mouse Handling ---- */
+static void handle_mouse(AppState* state) {
+    MEVENT event;
+    if (getmouse(&event) != OK) return;
+
+    int left_width = COLS / 2;
+
+    /* Scroll wheel */
+    if (event.bstate & BUTTON4_PRESSED) {
+        navigate_up(state);
+        return;
+    }
+    if (event.bstate & BUTTON5_PRESSED) {
+        navigate_down(state);
+        return;
+    }
+
+    /* Left click — only on button press, not release */
+    if (!(event.bstate & BUTTON1_PRESSED) && !(event.bstate & BUTTON1_CLICKED))
+        return;
+
+    /* Ignore clicks on header (row 0) and status bar (row >= LINES-3) */
+    if (event.y < 1 || event.y >= LINES - 3) return;
+
+    /* Determine which panel was clicked */
+    if (event.x < left_width) {
+        /* Left panel (recents) */
+        if (state->history_count > 0) {
+            state->active_panel = PANEL_RECENTS;
+            int clicked_idx = (event.y - 2) + state->recents_scroll;
+            if (clicked_idx >= 0 && clicked_idx < state->history_count)
+                state->recents_selected = clicked_idx;
+        }
+    } else {
+        /* Right panel (all servers) */
+        int count = state->filtered_hosts ? state->filtered_hosts->count : 0;
+        if (count > 0) {
+            state->active_panel = PANEL_ALL;
+            int clicked_idx = (event.y - 2) + state->all_scroll;
+            if (clicked_idx >= 0 && clicked_idx < count)
+                state->all_selected = clicked_idx;
+        }
+    }
+}
+
 /* ---- Input Handling ---- */
 static const char* get_selected_host(const AppState* state) {
     if (state->active_panel == PANEL_RECENTS) {
@@ -336,6 +381,9 @@ static void handle_input(AppState* state, int ch) {
         case KEY_DOWN:
             navigate_down(state);
             return;
+        case KEY_MOUSE:
+            handle_mouse(state);
+            return;
         case KEY_RESIZE:
             ui_resize(&state->panels);
             return;
@@ -381,6 +429,9 @@ static void handle_input(AppState* state, int ch) {
                 app_connect(state, host);
             }
         }
+        break;
+    case KEY_MOUSE:
+        handle_mouse(state);
         break;
     case '/':
         start_search(state);

@@ -1,5 +1,6 @@
 #include "ui.h"
 #include "app.h"
+#include "i18n.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -308,9 +309,10 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     /* Check terminal size */
     if (LINES < 10 || COLS < 40) {
         clear();
-        const char* msg = "Terminal too small. Need at least 40x10.";
+        const char* msg = t(STR_TERMINAL_SMALL);
         mvprintw(LINES / 2, (COLS - (int)strlen(msg)) / 2, "%s", msg);
-        mvprintw(LINES / 2 + 1, (COLS - 22) / 2, "Press any key to exit.");
+        const char* key_msg = t(STR_PRESS_ANY_KEY);
+        mvprintw(LINES / 2 + 1, (COLS - (int)strlen(key_msg)) / 2, "%s", key_msg);
         refresh();
         return;
     }
@@ -323,13 +325,14 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
 
     /* ---- Recents Panel ---- */
     int recents_color = recents_active ? COLOR_PANEL_ACTIVE : COLOR_PANEL_INACTIVE;
-    draw_titled_box(panels->recents_panel, " RECIENTES ", recents_color);
+    draw_titled_box(panels->recents_panel, t(STR_RECIENTES), recents_color);
 
     if (state->history_count == 0) {
         int h, w;
         getmaxyx(panels->recents_panel, h, w);
         wattron(panels->recents_panel, COLOR_PAIR(recents_color));
-        mvwprintw(panels->recents_panel, h / 2, (w - 7) / 2, "(vacio)");
+        const char* empty = t(STR_EMPTY);
+        mvwprintw(panels->recents_panel, h / 2, (w - (int)strlen(empty)) / 2, "%s", empty);
         wattroff(panels->recents_panel, COLOR_PAIR(recents_color));
     } else {
         draw_host_list(panels->recents_panel, (char(*)[HOST_NAME_MAX])state->history,
@@ -341,10 +344,10 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     int all_color = recents_active ? COLOR_PANEL_INACTIVE : COLOR_PANEL_ACTIVE;
     char all_title[320];
     if (state->is_searching && state->search_buffer[0] != '\0') {
-        snprintf(all_title, sizeof(all_title), " BUSQUEDA: %s ",
+        snprintf(all_title, sizeof(all_title), t(STR_BUSQUEDA_FMT),
                  state->search_buffer);
     } else {
-        snprintf(all_title, sizeof(all_title), " TODOS LOS SERVIDORES ");
+        snprintf(all_title, sizeof(all_title), "%s", t(STR_ALL_SERVERS));
     }
     draw_titled_box(panels->all_panel, all_title, all_color);
 
@@ -355,11 +358,11 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
         wattron(panels->all_panel, COLOR_PAIR(COLOR_TEXT));
         const char* empty_msg;
         if (state->all_hosts && state->all_hosts->count == 0) {
-            empty_msg = "No hosts in ~/.ssh/config";
+            empty_msg = t(STR_NO_HOSTS_CONFIG);
         } else if (state->is_searching) {
-            empty_msg = "No matches";
+            empty_msg = t(STR_NO_MATCHES);
         } else {
-            empty_msg = "No hosts found";
+            empty_msg = t(STR_NO_HOSTS_FOUND);
         }
         mvwprintw(panels->all_panel, h / 2, (w - (int)strlen(empty_msg)) / 2,
                   "%s", empty_msg);
@@ -374,7 +377,7 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
 
     /* Row 1: search input */
     wattron(panels->status_win, COLOR_PAIR(COLOR_STATUS));
-    mvwprintw(panels->status_win, 1, 2, "Busqueda: %s", state->search_buffer);
+    mvwprintw(panels->status_win, 1, 2, t(STR_SEARCH_LABEL), state->search_buffer);
     if (state->is_searching) {
         wattron(panels->status_win, A_BLINK);
         int cursor_x = 12 + state->search_cursor;
@@ -386,8 +389,8 @@ void ui_draw(const UIPanels* panels, const struct AppState* state) {
     /* Row 2: shortcuts */
     wattron(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
     mvwprintw(panels->status_win, 2, 2,
-              "[Enter] Conectar  [/] Buscar  [Tab] Panel  [F2] Temas  [Esc/q] %s",
-              state->is_searching ? "Cancelar" : "Salir");
+              t(STR_SHORTCUTS),
+              state->is_searching ? t(STR_CANCEL) : t(STR_EXIT));
     wattroff(panels->status_win, COLOR_PAIR(COLOR_STATUS) | A_BOLD);
 
     /* Refresh all windows */

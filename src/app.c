@@ -1,4 +1,5 @@
 #include "app.h"
+#include "i18n.h"
 #include "search.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,7 +63,8 @@ AppState* app_init(void) {
     state->search_cursor = 0;
     state->running = true;
 
-    /* Load saved theme before initializing ncurses */
+    /* Load saved preferences */
+    i18n_load();
     state->theme_index = ui_theme_load();
 
     /* Initialize ncurses (applies default theme 0 internally) */
@@ -334,6 +336,10 @@ static void handle_input(AppState* state, int ch) {
         case '\t':  /* Tab: toggle panel while searching */
             toggle_panel(state);
             return;
+        case KEY_F(1):  /* Toggle language */
+            i18n_toggle();
+            i18n_save();
+            return;
         case KEY_F(2):  /* Cycle color theme */
             state->theme_index = ui_next_theme(state->theme_index);
             ui_apply_theme(state->theme_index);
@@ -376,6 +382,10 @@ static void handle_input(AppState* state, int ch) {
         break;
     case '/':
         start_search(state);
+        break;
+    case KEY_F(1):  /* Toggle language */
+        i18n_toggle();
+        i18n_save();
         break;
     case KEY_F(2):  /* Cycle color theme */
         state->theme_index = ui_next_theme(state->theme_index);
